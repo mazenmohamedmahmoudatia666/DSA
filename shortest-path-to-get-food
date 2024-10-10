@@ -1,0 +1,79 @@
+#include <vector>
+#include <queue>
+#include <iostream>
+
+using namespace std;
+
+class food {
+private:
+    int dr[4]{1, -1, 0, 0};
+    int dc[4]{0, 0, 1, -1};
+    const int OO = 100000; // A large value representing unvisited cells
+
+    void add_undirected_edge(vector<vector<int>>& graph, int from, int to) {
+        graph[from].push_back(to);
+        graph[to].push_back(from);
+    }
+
+    bool can_walk(vector<vector<char>>& matrix, int row, int col, vector<vector<int>>& len) {
+        // Check for out-of-bounds and conditions for walking
+        return (row >= 0 && row < matrix.size() && col >= 0 && col < matrix[0].size() &&
+                matrix[row][col] != 'X' && len[row][col] == OO && matrix[row][col] == 'O');
+    }
+
+    int bfs(vector<vector<char>>& matrix, pair<int, int> my_location, vector<vector<int>>& len) {
+        queue<pair<int, int>> q;
+        q.push(my_location);
+        len[my_location.first][my_location.second] = 0; // Starting point distance
+
+        while (!q.empty()) {
+            auto cur = q.front();
+            q.pop();
+            int cur_row = cur.first;
+            int cur_col = cur.second;
+
+            for (int dir = 0; dir < 4; ++dir) {
+                int new_row = cur_row + dr[dir];
+                int new_col = cur_col + dc[dir];
+
+                // Check if we can walk to the new cell
+                if (can_walk(matrix, new_row, new_col, len)) {
+                    q.push({new_row, new_col});
+                    len[new_row][new_col] = len[cur_row][cur_col] + 1; // Update distance
+
+                    // Check if the new cell contains food
+                    if (matrix[new_row][new_col] == '*') {
+                        return len[new_row][new_col]; // Return the distance to food
+                    }
+                }
+            }
+        }
+        return -1; // Return -1 if no food found
+    }
+
+public:
+    int getFood(vector<vector<char>>& matrix) {
+        int nodes = matrix.size();
+        if (nodes == 0) return -1; // Handle empty matrix
+        int cols = matrix[0].size();
+        vector<vector<int>> len(nodes, vector<int>(cols, OO)); // Initialize length matrix
+
+        // Find the starting position (where the person is located)
+        pair<int, int> start;
+        bool found = false;
+
+        for (int i = 0; i < nodes && !found; i++) {
+            for (int j = 0; j < cols && !found; j++) {
+                if (matrix[i][j] == '#') { // Assuming '#' is the starting position
+                    start = {i, j};
+                    found = true;
+                }
+            }
+        }
+
+        if (!found) return -1; // If starting position is not found, return -1
+
+        // Call BFS from the starting position
+        return bfs(matrix, start, len);
+    }
+};
