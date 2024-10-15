@@ -1,0 +1,43 @@
+int minimumSemesters(int n, vector<vector<int>>& relations) {
+    vector<vector<int>> graph(n);
+    vector<int> indegree(n, 0);
+
+    // Build the graph and calculate indegree for each course
+    for (auto& prec : relations) {
+        int prevCourse = prec[0] - 1;  // 1-based to 0-based indexing
+        int nextCourse = prec[1] - 1;
+        graph[prevCourse].push_back(nextCourse);
+        indegree[nextCourse]++;  // Increase indegree for the next course
+    }
+
+    // Initialize the queue with courses that have no prerequisites (indegree == 0)
+    queue<int> ready;
+    for (int i = 0; i < n; i++) {
+        if (indegree[i] == 0) {
+            ready.push(i);
+        }
+    }
+
+    int semesters = 0;
+    int coursesTaken = 0;  // Track how many courses we can complete
+    while (!ready.empty()) {
+        int size = ready.size();  // Process all courses that can be taken in this semester
+        semesters++;  // Increment the number of semesters
+
+        for (int i = 0; i < size; i++) {
+            int course = ready.front();
+            ready.pop();
+            coursesTaken++;
+
+            // Process all dependent courses
+            for (int nextCourse : graph[course]) {
+                if (--indegree[nextCourse] == 0) {
+                    ready.push(nextCourse);
+                }
+            }
+        }
+    }
+
+    // If we've taken all courses, return the number of semesters; otherwise return -1 for a cycle
+    return coursesTaken == n ? semesters : -1;
+}
