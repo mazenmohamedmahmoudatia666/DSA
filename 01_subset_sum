@@ -1,0 +1,41 @@
+class Solution {
+    const int max = 20001;  // Max size for memory
+    int memory[20001];  // One-dimensional memory array for memoization
+    vector<int> nums;  // Store the input values
+    int target;  // Target value
+
+    // Helper function to either pick or leave elements
+    bool pick_or_leave(int i, int sum) {
+        if (i >= nums.size()) {
+            // Base case: if sum equals target, we found a valid subset
+            return sum == target;
+        }
+
+        // Memoization: check if we have already solved this subproblem
+        auto& ret = memory[i];
+        if (ret != -1) {
+            return ret;
+        }
+
+        // Recursive case: pick or leave the current element
+        bool leave = pick_or_leave(i + 1, sum);  // Leave the current element
+        bool pick = pick_or_leave(i + 1, sum + nums[i]);  // Pick the current element
+
+        // Store the result in memory and return
+        ret = leave || pick;
+        return ret;
+    }
+
+public:
+    // Main function to check if there is a subset with sum equal to target
+    bool subset_sum(const vector<int>& values, int target) {
+        nums = values;  // Store the input values
+        this->target = target;  // Store the target value
+
+        // Initialize memory array with -1
+        memset(memory, -1, sizeof(memory));
+
+        // Start recursion from index 0 with sum 0
+        return pick_or_leave(0, 0);
+    }
+};
