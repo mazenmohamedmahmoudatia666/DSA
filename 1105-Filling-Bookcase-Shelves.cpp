@@ -1,58 +1,30 @@
-// https://leetcode.com/problems/filling-bookcase-shelves/
-#include <iostream>
-#include <vector>
-#include <cstring>
-#include <climits>
-#include <algorithm>
-#include <cassert>
-using namespace std;
-
-/*
-
-Direct Consecutive range pattern
-We want to find a good blocks split
-
-dp(idx)
-	Try all consecutive ranges as long as total width <= shelfWidth
-		For each choice [idx, k] subarray, recurse on the remaining dp(k+1)
-		The choice cost is the max height in the subarray [idx, k]
-
- */
-
-const int MAX = 1000 + 1;
-int memory[MAX];
-
-vector<vector<int>> books;
-int shelfWidth;
-
-int arrange(int idx) {
-	if (idx >= (int) books.size())
-		return 0;
-
-	auto &ret = memory[idx];
-	if (ret != -1)
-		return ret;
-	ret = INT_MAX;
-	int total_width = 0, mx_height = 0;
-
-	for (int k = idx; k < (int) books.size(); k++) {
-		total_width += books[k][0];
-		mx_height = max(mx_height, books[k][1]);
-
-		if (total_width > shelfWidth)
-			break;
-		ret = min(ret, mx_height + arrange(k + 1));
-	}
-	return ret;
-}
-
 class Solution {
-public:
-	int minHeightShelves(vector<vector<int>> &books_, int shelfWidth_) {
-		books = books_;
-		shelfWidth = shelfWidth_;
-		memset(memory, -1, sizeof(memory));
-		return arrange(0);
-	}
-};
+    vector<int> dp; // 1D DP array to store minimum height for books from start up to index `i`
+    
+    int process(int i, vector<vector<int>>& books, int shelfWidth) {
+        if (i >= books.size()) return 0; // Base case: no more books to place
+        
+        auto&ret = dp[i];
+        if ( ret!= -1) return ret; // If already computed, return the result
+        
+        int width = 0, height = 0, minHeight = INT_MAX;
 
+        // Try placing books on the current shelf up to the width limit
+        for (int j = i; j < books.size(); j++) {
+            width += books[j][0]; // Accumulate book width
+
+            if (width > shelfWidth) break; // Exceeds width, stop adding books
+
+            height = max(height, books[j][1]); // Track the maximum height on the current shelf
+            minHeight = min(minHeight, height + process(j + 1, books, shelfWidth)); // Recursive step
+        }
+
+        return ret = minHeight; // Store the result in dp array
+    }
+    
+public:
+    int minHeightShelves(vector<vector<int>>& books, int shelfWidth) {
+        dp = vector<int>(books.size(), -1); // Initialize dp array with -1 for memoization
+        return process(0, books, shelfWidth); // Start from the first book
+    }
+};
