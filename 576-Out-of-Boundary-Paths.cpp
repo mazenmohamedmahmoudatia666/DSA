@@ -26,8 +26,7 @@ using namespace std;
 
 const int MOD = 1000000007;
 
-const int MAX = 50 + 1;
-int memory[MAX][MAX][MAX];
+int dp[51][51][51];
 int rows, cols, max_moves;
 
 int cntWays(int r, int c, int move) {
@@ -37,7 +36,7 @@ int cntWays(int r, int c, int move) {
 \tif (r < 0 || r >= rows || c < 0 || c >= cols)
 \t\treturn 1;
 
-\tauto &ret = memory[r][c][move];
+\tauto &ret = dp[r][c][move];
 \tif (ret != -1)
 \t\treturn ret;
 
@@ -60,7 +59,7 @@ class Solution {
 public:
 \tint findPaths(int m, int n, int maxMove, int startRow, int startColumn) {
 \t\trows = m, cols = n, max_moves = maxMove;
-\t\tmemset(memory, -1, sizeof(memory));
+\t\tmemset(dp, -1, sizeof(dp));
 \t\treturn cntWays(startRow, startColumn, 0);
 \t}
 };
