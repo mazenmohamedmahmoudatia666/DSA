@@ -1,65 +1,40 @@
-// https://leetcode.com/problems/out-of-boundary-paths/
-
-#include <iostream>
-#include <vector>
-#include <cstring>
-#include <climits>
-#include <cassert>
-#include <unordered_set>
-#include <unordered_map>
-using namespace std;
-
-/*
- * It seems we are counting number of paths on grid that go out the grid boundry
- * But we go in the 4 directions and trivially cycle (infinite)
- * \t\tdp(r, c)
- *
- * True, but the problem also asks us to do max moves
- * \t\tSo we must add that to the state
- * \t\tdp(r, c, steps)
- * \t\tNow, even we can return to the same (r, c)
- * \t\twe will always have less steps
- *
- * Now code is direct, with careful handling for overflows for C++
- *
- */
 
 const int MOD = 1000000007;
 
-int dp[51][51][51];
+const int MAX = 50 + 1;
+int memory[MAX][MAX][MAX];
 int rows, cols, max_moves;
-
-int cntWays(int r, int c, int move) {
-\tif (move > max_moves)
-\t\treturn 0;
-
-\tif (r < 0 || r >= rows || c < 0 || c >= cols)
-\t\treturn 1;
-
-\tauto &ret = dp[r][c][move];
-\tif (ret != -1)
-\t\treturn ret;
-
-\t// We can also use directional array
-\tret = cntWays(r, c - 1, move + 1);
-
-\tret += cntWays(r, c + 1, move + 1);
-\tret %= MOD;\t// apply after each step
-
-\tret += cntWays(r + 1, c, move + 1);
-\tret %= MOD;
-
-\tret += cntWays(r - 1, c, move + 1);
-\tret %= MOD;
-
-\treturn ret;
-}
-
 class Solution {
-public:
+
+\tint ans(int r, int c, int move) {
+\t\tif (move == -1)
+\t\t\treturn 0;
+
+\t\tif (r < 0 || r >= rows || c < 0 || c >= cols)
+\t\t\treturn 1;
+
+\t\treturn memory[r][c][move];
+\t}
+  public:
 \tint findPaths(int m, int n, int maxMove, int startRow, int startColumn) {
+\t\t// #Moves is the thing that control the state (actual indexing). Must be first loop
 \t\trows = m, cols = n, max_moves = maxMove;
-\t\tmemset(dp, -1, sizeof(dp));
-\t\treturn cntWays(startRow, startColumn, 0);
+
+\t\tfor (int move = 0; move <= maxMove; ++move) {
+\t\t\tfor (int r = 0; r < rows; ++r) {
+\t\t\t\tfor (int c = 0; c < cols; ++c) {
+
+\t\t\t\t\tint ret = ans(r, c - 1, move - 1);
+\t\t\t\t\tret += ans(r, c + 1, move - 1);
+\t\t\t\t\tret %= MOD;
+\t\t\t\t\tret += ans(r + 1, c, move - 1);
+\t\t\t\t\tret %= MOD;
+\t\t\t\t\tret += ans(r - 1, c, move - 1);
+\t\t\t\t\tret %= MOD;
+\t\t\t\t\tmemory[r][c][move] = ret;
+\t\t\t\t}
+\t\t\t}
+\t\t}
+\t\treturn ans(startRow, startColumn, maxMove);
 \t}
 };
