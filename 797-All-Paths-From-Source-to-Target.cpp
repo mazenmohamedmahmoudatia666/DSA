@@ -1,30 +1,26 @@
-
 class Solution {
-    vector<int> path;
-    vector<vector<int>> res;
+    vector<vector<int>>res;
+    vector<int>path;
+     void backtracking(vector<vector<int>>& DAG , int node){
+    path.push_back(node);
 
-    void dfs(vector<vector<int>>& DAG, vector<bool>& visited, int node) {
-        visited[node] = true;
-        path.push_back(node);
-
-        if (node == DAG.size() - 1) {  // If reached the last node
-            res.push_back(path);
-        } else {
-            for (auto& neighbor : DAG[node]) {
-                if (!visited[neighbor]) {
-                    dfs(DAG, visited, neighbor);
-                }
-            }
+    if(node == DAG.size()- 1){
+        res.push_back(path);
+    }else{
+        for(auto& nigbour : DAG[node]){
+            backtracking(DAG , nigbour);
         }
-
-        path.pop_back();  // Backtrack
-        visited[node] = false;
     }
+    path.pop_back(); 
 
+    }
 public:
     vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph) {
-        vector<bool> visited(graph.size(), false);
-        dfs(graph, visited, 0);  // Start from node 0
+        res.clear();
+        path.clear();
+         backtracking(graph, 0); // Start from node 0
         return res;
+        
+          
     }
 };
