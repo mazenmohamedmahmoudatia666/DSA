@@ -1,24 +1,29 @@
+#include <vector>
+#include <algorithm>
+using namespace std;
+
 class Solution {
 public:
     int triangleNumber(vector<int>& nums) {
-        sort(nums.begin(), nums.end());
+        int count = 0;
         int n = nums.size();
-        int cnt = 0;
         
-        // Iterate over the largest side of the triangle (nums[k])
-        for (int k = 2; k < n; ++k) {
-            int l = 0, r = k - 1; // Use two pointers to find valid (i, j) pairs
-            while (l < r) {
-                if (nums[l] + nums[r] > nums[k]) {
-                    // If nums[l] + nums[r] > nums[k], all pairs (l, l+1, ..., r-1) are valid
-                    cnt += (r - l);  // Count all valid pairs
-                    r--;  // Move the right pointer to the left
-                } else {
-                    l++;  // Move the left pointer to the right
+        // Sort the numbers first to ensure that we can easily check the triangle inequality
+        sort(nums.begin(), nums.end());
+        
+        for (int i = 0; i < n - 2; i++) {
+            for (int j = i + 1; j < n - 1; j++) {
+                for (int k = j + 1; k < n; k++) {
+                    // Check the triangle inequality
+                    if (nums[i] + nums[j] > nums[k] && 
+                        nums[i] + nums[k] > nums[j] && 
+                        nums[j] + nums[k] > nums[i]) {
+                        count++;
+                    }
                 }
             }
         }
         
-        return cnt;
+        return count;
     }
 };
